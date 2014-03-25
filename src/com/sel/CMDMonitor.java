@@ -2,9 +2,10 @@ package com.sel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,7 +54,10 @@ public class CMDMonitor extends JFrame {
 		setLocation(300, 200);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		inputWin.requestFocus();
+		addFocusListener(new MainWinFocusListener());
+		mainWin.addFocusListener(new MainWinFocusListener());
+		mainScollPane.addFocusListener(new MainWinFocusListener());
+		markWin.addFocusListener(new MainWinFocusListener());
 	}
 
 	class InputLinstener implements ActionListener {
@@ -113,6 +117,21 @@ public class CMDMonitor extends JFrame {
 		}
 
 	}
+	
+	class MainWinFocusListener implements FocusListener {
+
+		@Override
+		public void focusGained(FocusEvent e) {
+			inputWin.requestFocusInWindow();
+		}
+
+		@Override
+		public void focusLost(FocusEvent e) {
+			
+		}
+		
+	}
+	
 
 	private void CMDCommand(String command) {
 		try {
