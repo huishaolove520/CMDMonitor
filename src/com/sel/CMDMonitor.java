@@ -2,12 +2,9 @@ package com.sel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridLayout;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -50,7 +47,7 @@ public class CMDMonitor extends JFrame {
 		botPanel.add(inputWin, BorderLayout.CENTER);
 		inputWin.addActionListener(new InputLinstener());
 		add(botPanel, BorderLayout.SOUTH);
-		
+
 		setVisible(true);
 		setSize(600, 400);
 		setLocation(300, 200);
@@ -63,86 +60,112 @@ public class CMDMonitor extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String input = ((JTextField) e.getSource()).getText().trim();
+			String input = ((JTextField) e.getSource()).getText().trim()
+					.toLowerCase();
+			String[] args = input.split(" ");
+			if (args[0].matches("^.+\\.((exe)|(bat)|(txt)|(html))$")) {
+				CMDCommand("cmd /c " + input);
+			} else {
+				switch (args[0]) {
+				case "ls":
+					CMDCommand("cmd /c dir");
+					break;
 
-			switch (input) {
-			case "ls":
-			case "LS":
-                CMDCommand("cmd /c dir");
-				break;
+				case "ps":
+					CMDCommand("cmd /c tasklist");
+					break;
 
-			case "ps":
-			case "PS":
-				CMDCommand("cmd /c tasklist");
-				break;
-			
-			case "clean":
-			case "CLEAN":
-				CLEANCommand();
-				break;
-				
-			case "exit":
-			case "EXIT":
-				EXITCommand();
-				break;
-				
-			case "help":
-			case "HELP":
-				HELPCommand();
-				break;
-				
-			default:
-				showWrongMessage();
-				HELPCommand();
-				break;
+				case "clean":
+					CLEANCommand();
+					break;
+
+				case "create":
+					CMDCommand("cmd /c echo>" + args[1]);
+					break;
+
+				case "delete":
+					CMDCommand("cmd /c del " + args[1]);
+					break;
+
+				case "type":
+				case "copy":
+				case "mkdir":
+				case "rmdir":
+				case "move":
+					CMDCommand("cmd /c " + input);
+					break;
+
+				case "exit":
+					EXITCommand();
+					break;
+
+				case "help":
+					HELPCommand();
+					break;
+
+				default:
+					showWrongMessage();
+					HELPCommand();
+					break;
+				}
+
 			}
-
 		}
 
 	}
-	
+
 	private void CMDCommand(String command) {
 		try {
+			mainWin.setText(mainWin.getText() + markWin.getText()
+					+ inputWin.getText() + "\n\n");
+			inputWin.setText("");
 			Process process = Runtime.getRuntime().exec(command);
-			BufferedReader bf = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			BufferedReader bf = new BufferedReader(new InputStreamReader(
+					process.getInputStream()));
 			String s;
-			while((s = bf.readLine()) != null) {
+			while ((s = bf.readLine()) != null) {
 				mainWin.setText(mainWin.getText() + s + '\n');
 			}
-			mainWin.setText(mainWin.getText() + markWin.getText() + inputWin.getText() + '\n');
+			process.destroy();
 			mainWin.setCaretPosition(mainWin.getDocument().getLength());
-			inputWin.setText("");
 		} catch (IOException e) {
 
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void CLEANCommand() {
 		mainWin.setText("");
 		inputWin.setText("");
 	}
-	
+
 	private void EXITCommand() {
 		System.exit(0);
 	}
-	
+
 	private void showWrongMessage() {
-		String wrongMessage = "No this command!\n\n";
+		mainWin.setText(mainWin.getText() + markWin.getText()
+				+ inputWin.getText() + "\n\n");
+		String wrongMessage = "No this command !\n\n";
 		mainWin.setText(mainWin.getText() + '\n' + wrongMessage);
 		inputWin.setText("");
 	}
-	
+
 	private void HELPCommand() {
-		String helpInfo = "Please input the command below:\n\n" 
-				        + "ls : list the files and directories\n\n"
-				        + "ps : show the running process\n\n"
-				        + "clean : clean the content\n\n"
-				        + "exit : exit the program\n\n"
-				        + "help : the help information\n";
+		String helpInfo = "Please input the command below:\n\n"
+				+ "ls : list the files and directories\n\n"
+				+ "ps : show the running process\n\n"
+				+ "create FileName : create a file\n\n"
+				+ "delete FileName : delete a file\n\n"
+				+ "type FileName : show the content of a file\n\n"
+				+ "copy source destination : copy a file\n\n"
+				+ "mkdir directoryName : create a directory\n\n"
+				+ "rmdir directoryName : delete a directory\n\n"
+				+ "clean : clean the content\n\n"
+				+ "exit : exit the program\n\n"
+				+ "help : the help information\n\n";
 		mainWin.setText(mainWin.getText() + '\n' + helpInfo);
 		inputWin.setText("");
 	}
 
 }
-
